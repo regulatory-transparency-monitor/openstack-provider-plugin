@@ -1,9 +1,10 @@
 package logger
 
 import (
-	"collector-service/config"
+	"fmt"
 	"os"
 
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/config"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -30,12 +31,11 @@ type APIlogger struct {
 	cfg         *config.Config
 	sugarLogger *zap.SugaredLogger
 }
- 
+
 // App Logger constructor
 func NewAPIlogger(cfg *config.Config) *APIlogger {
 	return &APIlogger{cfg: cfg}
 }
-
 
 // For mapping config logger to app logger levels
 var loggerLevelMap = map[string]zapcore.Level{
@@ -62,11 +62,12 @@ func (l *APIlogger) InitLogger() {
 	logLevel := l.getLoggerLevel(l.cfg)
 
 	// Open the log file for writing
-	logFile, err := os.OpenFile("logs.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	logFile, err := os.OpenFile("../../pkg/logger/logs.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		// Handle error opening the log file
-		l.sugarLogger.Errorf("Error opening log file: %s", err)
-	}
+        // Handle error opening the log file without depending on the logger
+        fmt.Fprintf(os.Stderr, "Error opening log file: %s\n", err)
+        return // or panic(err) if you want the application to stop here
+    }
 
 	// Create a core for writing to the log file
 	logWriter := zapcore.AddSync(logFile)
@@ -110,7 +111,6 @@ func (l *APIlogger) InitLogger() {
 	if err := l.sugarLogger.Sync(); err != nil {
 		l.sugarLogger.Error(err)
 	}
-
 
 }
 

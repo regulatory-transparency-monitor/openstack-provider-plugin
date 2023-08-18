@@ -1,8 +1,6 @@
 package client
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,96 +8,6 @@ import (
 	"net/url"
 	"strings"
 )
-
-func MyRequest(method, path string, body io.Reader) (*http.Request, error) {
-	req, err := http.NewRequest(method, path, body)
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Add("X-Test", "true")
-	return req, nil
-}
-
-// Implement functions for creating and sending specific API requests (e.g., GET and POST).
-// This file can also include utility functions for setting headers, authentication, etc.
-func Get[T any](ctx context.Context, url string) (T, error) {
-	var m T
-	r, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-	if err != nil {
-		return m, err
-	}
-	res, err := http.DefaultClient.Do(r)
-	if err != nil {
-		return m, err
-	}
-	body, err := io.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		return m, err
-	}
-	return parseJSON[T](body)
-}
-
-/* func PPost(url string, data any) (something, error){
-	b, err := toJSON(data)
-	if err != nil {
-		return b, err
-	}
-	byteReader := bytes.NewReader(b)
-	r, err := http.NewRequest("POST", url, byteReader)
-	if err != nil {
-		return r, err
-	}
-	// TODO add setting header function for tokens
-	r.Header.Add("Content-Type", "application/json")
-
-	// Send the request
-	res, err := http.DefaultClient.Do(r)
-	if err != nil {
-		return res, err
-	}
-	body, err := io.ReadAll(res.Body)
-
-	defer res.Body.Close()
-
-
-} */
-func Post[T any](ctx context.Context, url string, data any) (T, error) {
-	var m T
-	b, err := toJSON(data)
-	if err != nil {
-		return m, err
-	}
-	byteReader := bytes.NewReader(b)
-	r, err := http.NewRequestWithContext(ctx, "POST", url, byteReader)
-	if err != nil {
-		return m, err
-	}
-	// Important to set
-	r.Header.Add("Content-Type", "application/json")
-	res, err := http.DefaultClient.Do(r)
-	if err != nil {
-		return m, err
-	}
-	body, err := io.ReadAll(res.Body)
-	res.Body.Close()
-	if err != nil {
-		return m, err
-	}
-	return parseJSON[T](body)
-}
-
-func toJSON(T any) ([]byte, error) {
-	return json.Marshal(T)
-}
-
-func parseJSON[T any](s []byte) (T, error) {
-	var r T
-	if err := json.Unmarshal(s, &r); err != nil {
-		return r, err
-	}
-	return r, nil
-}
 
 // in the case of GET, the parameter queryParameters is transferred to the URL as query parameters
 // in the case of POST, the parameter body, an io.Reader, is used
@@ -132,10 +40,8 @@ func MakeHTTPRequest[T any](fullUrl string, httpMethod string, headers map[strin
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
-
-	// optional: log the request for easier stack tracing
-	//appLogger.Infof("Logging request: %s %s\n", httpMethod, req.URL.String())
-
+	// Set the token in the header
+	//req.Header.Add("X-Auth-Token", c.Token)
 	// finally, do the request
 	res, err := client.Do(req)
 	if err != nil {
@@ -155,18 +61,11 @@ func MakeHTTPRequest[T any](fullUrl string, httpMethod string, headers map[strin
 
 	defer res.Body.Close()
 
-	// Not a good idea soince we can get different repsones according to the request performed
-	// Idea extract this functionality if needed and call it after beeing returned
-	/* if res.StatusCode != http.StatusCreated && res.StatusCode != http.StatusOK {
-		appLogger.Info(res.StatusCode)
-		return responseType, res.Header, fmt.Errorf("error calling %s:\nstatus: %s\nresponseData: %s", u.String(), res.Status, responseData)
-	}  */
 	switch res.StatusCode {
 	case http.StatusCreated, http.StatusOK:
 		var responseObject T
 		err = json.Unmarshal(responseData, &responseObject)
-		// Now rsp should have the response data, print it:
-		//fmt.Printf("Payload converted, JSON: %s\n", responseData)
+
 		if err != nil {
 
 			return responseType, res.Header, err
@@ -178,3 +77,4 @@ func MakeHTTPRequest[T any](fullUrl string, httpMethod string, headers map[strin
 	}
 
 }
+

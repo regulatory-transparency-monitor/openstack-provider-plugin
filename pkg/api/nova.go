@@ -1,104 +1,80 @@
 package api
 
 import (
-	"collector-service/pkg/client"
-	"collector-service/pkg/models"
+	"encoding/json"
 	"fmt"
+
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/client"
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/models"
 )
 
 type NovaService struct {
-	authToken string
-	projectID string
+	BaseURL string
+	Client  *client.HTTPClient
 }
 
-// b.3 Nova GET server by projectID, returns 200
-func (n *NovaService) GetServers(tokenInstance *models.Token) (models.NovaResponse, error) {
-	n.authToken = tokenInstance.HeaderToken
-	fmt.Printf("TOKEN RETRIEVED: %+v \n ", n.authToken)
-	n.projectID = tokenInstance.ProjectID
+// b.3 Nova GET server list by projectID, returns 200
+func (n *NovaService) GetServerListByProjectID(projectID string) (*models.NovaResponse, error) {
+	endpoint := fmt.Sprintf("%sservers?project_id=%s", n.BaseURL, projectID)
 
-
-	fmt.Sprintf("Get server details for projectID: [%v]", n.projectID)
-	// Construct URL with the project ID ad path parameter
-	fullUrl := fmt.Sprintf("https://api.pub1.infomaniak.cloud/compute/v2.1/servers?project_id=%s", n.projectID) 
-
-	// Set header
-	headers := map[string]string{
-		"X-AUTH-TOKEN": n.authToken,
-	}
-	var response models.NovaResponse
-
-	response, _, err := client.MakeHTTPRequest(fullUrl, "GET", headers, nil, nil, response)
-	// Handle the response
-	fmt.Printf("Server Details: %+v", response)
+	// Construct the GET request.
+	req, err := n.Client.NewRequest("GET", endpoint, nil, nil)
 	if err != nil {
-		fmt.Errorf("Error while converting: %s", err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
-	// getServerByID(response, appLogger, headers)
-	// getServerIP(response, appLogger, headers)
-	// getMetadata(response, appLogger, headers )
-	return response, err
+	// Execute the request.
+	res, err := n.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer res.Body.Close()
+
+	// Decode the response.
+	var response models.NovaResponse
+	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return &response, err
 
 }
 
 /*
-func (k NovaService) GetProjects() ([]Project, error) {
-    // ... your implementation ...
-}
-
-func (k NovaService) GetUsers() ([]User, error) {
-    // ... your implementation ...
-}
-
-// Do the same for the KeystoneService
-
 // b.3 Nova GET server by projectID, returns 200
-func sendAuthRequest(appLogger *logger.APIlogger, xAuthToken, projectID string) {
-	appLogger.Infof("Get server details for projectID: [%v]", projectID)
+func sendAuthRequest(xAuthToken, projectID string) {
 	// Construct URL with the project ID ad path parameter
 	fullUrl := fmt.Sprintf("https://pub1.infomaniak.cloud/compute/v2.1/servers?project_id=%s", projectID)
 	// Set header
-	headers := map[string]string{
-		"X-AUTH-TOKEN": xAuthToken,
-	}
+	header := n.Client.GetHeader()
 	var response models.NovaResponse
 
-	response, _, err := client.MakeHTTPRequest( fullUrl, "GET", headers, nil, nil, response)
+	response, _, err := client.MakeHTTPRequest(fullUrl, "GET", headers, nil, nil, response)
 	// Handle the response
-	appLogger.Infof("Server Details: %+v", response)
 	if err != nil {
-		appLogger.Fatalf("Error while coverting: %s", err)
-
+		fmt.Errorf("Error while converting: %s", err)
 	}
 
-	getServerByID(response, appLogger, headers)
-	getServerIP(response, appLogger, headers)
-	//getMetadata(response, appLogger, headers )
+} */
 
-}
-
-func getServerByID(response models.NovaResponse, appLogger *logger.APIlogger, headers map[string]string) {
+/* func (n *NovaService) GetServerByID(response models.NovaResponse) {
 	// Iterate over each server and make the API call
 	for _, server := range response.Servers {
-
 		apiEndpoint := fmt.Sprintf("https://pub1.infomaniak.cloud/compute/v2.1/servers/%s", server.ID)
 
 		var serverResp models.NovaServerPayload
+		header := n.Client.GetHeader()
 		// Make the API call to the endpoint using the server ID
-
-		serverResp, _, err := client.MakeHTTPRequest( apiEndpoint, "GET", headers, nil, nil, serverResp)
-
-		// Handle the response
-		appLogger.Infof("Response: %+s", &serverResp)
+		serverResp, _, err := client.MakeHTTPRequest(apiEndpoint, "GET", header, nil, nil, serverResp)
 		if err != nil {
-			appLogger.Fatalf("Error while coverting: %s", err)
+			fmt.Errorf("Error while coverting: %s", err)
 
 		}
-
 	}
-}
 
+} */
+
+/*
 // Doenst return anthing so far
 func getServerIP(response models.NovaResponse, appLogger *logger.APIlogger, headers map[string]string) {
 	// Iterate over each server and make the API call
@@ -109,7 +85,7 @@ func getServerIP(response models.NovaResponse, appLogger *logger.APIlogger, head
 		var response models.Addresses
 		// Make the API call to the endpoint using the server ID
 
-		response, _, err := client.MakeHTTPRequest( apiEndpoint, "GET", headers, nil, nil, response)
+		response, _, err := client.MakeHTTPRequest(apiEndpoint, "GET", headers, nil, nil, response)
 
 		// Handle the response
 		appLogger.Infof("Response: %+s", response)
@@ -130,7 +106,7 @@ func getMetadata(response models.NovaResponse, appLogger *logger.APIlogger, head
 		var response models.Metadata
 		// Make the API call to the endpoint using the server ID
 
-		response, _, err := client.MakeHTTPRequest( apiEndpoint, "GET", headers, nil, nil, response)
+		response, _, err := client.MakeHTTPRequest(apiEndpoint, "GET", headers, nil, nil, response)
 
 		// Handle the response
 		appLogger.Infof("Response: %+s", response)
@@ -140,4 +116,5 @@ func getMetadata(response models.NovaResponse, appLogger *logger.APIlogger, head
 		}
 
 	}
-}*/
+}
+*/

@@ -1,36 +1,119 @@
-// keystone.go (Keystone Provider Plugin)
 package api
 
 import (
 	"bytes"
-	"collector-service/pkg/client"
-	"collector-service/pkg/models"
-	"context"
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"net/http"
-	"net/url"
-	"time"
+
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/client"
+
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/models"
 )
 
 type KeystoneService struct {
-	Token          string
-	projectID      string
-	expirationTime string
-	ctx            context.Context
+	BaseURL string
+	Client  *client.HTTPClient
 }
 
-/* func GetKeystoneServiceInstance() *KeystoneService {
-	once.Do(func() {
-		instance = &KeystoneService{}
-		// Add initialization logic if necessary
-	})
-	return instance
+func (k *KeystoneService) Authenticate() (string, error) {
+	endpoint := fmt.Sprintf("%sauth/tokens", k.BaseURL)
+	// Prepare the payload
+	credentials := models.CredentialPayload()
+	requestBody, err := json.Marshal(credentials)
+	if err != nil {
+		return "", fmt.Errorf("error marshaling credentials: %w", err)
+	}
+
+	// Create the HTTP request
+	request, err := k.Client.NewRequest("POST", endpoint, nil, bytes.NewBuffer(requestBody))
+	if err != nil {
+		return "", fmt.Errorf("error marshaling credentials: %w", err)
+	}
+
+	// Send the request
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return "", fmt.Errorf("error marshaling credentials: %w", err)
+	}
+
+	defer response.Body.Close()
+
+	// Decode the response body
+	var decodedResponse map[string]interface{}
+	if err := json.NewDecoder(response.Body).Decode(&decodedResponse); err != nil {
+		return "", fmt.Errorf("error decoding response: %w", err)
+	}
+
+	// Extract the project ID from the decoded response
+	projectID, valid := decodedResponse["token"].(map[string]interface{})["project"].(map[string]interface{})["id"].(string)
+	if !valid {
+		return "", fmt.Errorf("could not extract project ID from response: %w", err)
+	}
+
+	k.Client.SetToken(response.Header.Get("X-Subject-Token"))
+
+	return projectID, err
+}
+
+// GetProject by ID, returns project Details
+func (k *KeystoneService) GetProjectDetailsByID(projectID string) (*models.ProjectDetails, error) {
+	endpoint := fmt.Sprintf("%sprojects/%v", k.BaseURL, projectID)
+
+	// Construct the GET request.
+	req, err := k.Client.NewRequest("GET", endpoint, nil, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	// Execute the request.
+	res, err := k.Client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("execute request failed: %w", err)
+	}
+	defer res.Body.Close()
+
+	// Read and decode the response.
+	var projectDetails models.ProjectDetails
+	if err := json.NewDecoder(res.Body).Decode(&projectDetails); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return &projectDetails, nil
+}
+
+/* // Implements the KeystoneRepository interface
+func (k *KeystoneService) Authenticate() error {
+	// set url
+	endpoint := "https://api.pub1.infomaniak.cloud/identity/v3/auth/tokens"
+	// TODO pass as paramter to function
+	payload := models.CredentialPayload()
+
+	headers := map[string]string{
+		"Content-Type": "application/json",
+	}
+	queryParameters := url.Values{}
+	requestBody, err := json.Marshal(payload)
+	if err != nil {
+		panic(err)
+	}
+	body := bytes.NewReader(requestBody)
+	var rsp map[string]interface{}
+
+	// http request
+	response, responseHeaders, err := client.MakeHTTPRequest(endpoint, "POST", headers, queryParameters, body, rsp)
+	//fmt.Printf("Payload converted, JSON: %s\n", rsp)
+	if err != nil {
+		panic(err)
+	}
+
+	token := responseHeaders.Get("X-Subject-Token")
+	//k.Client.SetToken(token)
+
+	return err
 } */
 
-func (k *KeystoneService) GetToken(ctx context.Context) (string, error) {
+/* func (k *KeystoneService) GetToken() (string, error) {
 	// Check if the token is expired. If it is, refresh it.
 	if k.isTokenExpired() {
 		fmt.Printf("Token Expired, refreshing token...%s\n", k.expirationTime)
@@ -40,7 +123,7 @@ func (k *KeystoneService) GetToken(ctx context.Context) (string, error) {
 	}
 	return k.Token, nil
 }
-
+n time.Now
 func (k *KeystoneService) isTokenExpired() bool {
 	t, err := time.Parse(time.RFC3339, k.expirationTime)
 
@@ -49,129 +132,15 @@ func (k *KeystoneService) isTokenExpired() bool {
 		return false // or return true to signal that the token is expired if there's an error
 	}
 	// Check is token expired, true when t <= current time
-	return time.Now().After(t)
+	retur().After(t)
 }
 
 func (k *KeystoneService) refreshToken() error {
 	// Refresh the token
-
 	//ctx := k.ctx
 	return nil
 }
-
-// Get AuthToken using applciation credentials
-func (k *KeystoneService) Authenticate(ctx context.Context) (*models.Token, error) {
-	// set url
-	fullUrl := "https://api.pub1.infomaniak.cloud/identity/v3/auth/tokens"
-	// request payload containing application credentials
-	// TODO pass from a configuration file, transparency UI instead of hardcoding
-	payload := models.CredentialPayload()
-
-	headers := map[string]string{
-		"Content-Type": "application/json",
-	}
-	queryParameters := url.Values{}
-	reqBody, err := json.Marshal(payload)
-	if err != nil {
-		panic(err)
-	}
-	body := bytes.NewReader(reqBody)
-	var rsp map[string]interface{}
-
-	// http request
-	response, responseHeaders, err := client.MakeHTTPRequest(fullUrl, "POST", headers, queryParameters, body, rsp)
-	//fmt.Printf("Payload converted, JSON: %s\n", rsp)
-	if err != nil {
-		panic(err)
-	}
-
-	// Retrieve project ID from the response map
-	k.projectID = response["token"].(map[string]interface{})["project"].(map[string]interface{})["id"].(string)
-	// fmt.Printf("Project ID: %s\n", k.projectID)
-
-	// Get expiration time from the response map
-	k.expirationTime = response["token"].(map[string]interface{})["expires_at"].(string)
-	// fmt.Printf("Expiration time: %s \n", k.expirationTime)
-
-	// Create an instance of the Token struct
-	token := &models.Token{
-		
-	}
-
-	// Retrieve project ID from the response map
-	token.ProjectID = response["token"].(map[string]interface{})["project"].(map[string]interface{})["id"].(string)
-
-	// Get the X-Subject-Token from the response headers
-	token.HeaderToken = responseHeaders.Get("X-Subject-Token")
-
-	fmt.Printf("X-Subject-Token header: %s\n", token.HeaderToken)
-
-	return token, nil
-
-}
-
-// GetProject by ID, returns project Details
-func (k *KeystoneService) GetProjects() (models.ProjectDetails, error) {
-	url := fmt.Sprintf("https://api.pub1.infomaniak.cloud/identity/v3/projects/%s", k.projectID)
-	// Set header
-	headers := map[string]string{
-		"X-AUTH-TOKEN": k.Token,
-	}
-
-	var response models.ProjectDetails
-	// Make the GET request
-	response, _, err := client.MakeHTTPRequest(url, "GET", headers, nil, nil, response)
-	if err != nil {
-		panic(err)
-	}
-	return response, err
-}
-
-// Authenticate using application credentials
-func (k *KeystoneService) IdentityToken() error {
-	// General authentication when the
-	fullUrl := "https://api.pub1.infomaniak.cloud/identity/v3/auth/tokens"
-
-	payload := models.CredentialPayload()
-
-	// Marshal payload to JSON
-	jsonPayload, err := json.Marshal(payload)
-	if err != nil {
-		return err
-	}
-
-	req, err := http.NewRequest("POST", fullUrl, bytes.NewBuffer(jsonPayload))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	// Send the request
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-
-	body, err := io.ReadAll(resp.Body)
-
-	var result map[string]interface{}
-	err = json.NewDecoder(resp.Body).Decode(&result)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-	projectID := result["token"].(map[string]interface{})["project"].(map[string]interface{})["id"].(string)
-	fmt.Printf("Project ID: %s", projectID)
-
-	fmt.Printf("Body: %s\n", body)
-	// Now let's get the X-Subject-Token from the response headers
-	token := resp.Header.Get("X-Subject-Token")
-
-	fmt.Printf("X-Subject-Token header: %s\n", token)
-
-	k.Token = token
-	return err
-}
+*/
 
 /* // b.2 get project detials by project Id, returns status code 200
 func getProjectDetailsByID(appLogger *logger.APIlogger, xAuthToken, projectID string) {
@@ -199,7 +168,7 @@ func getProjectDetailsByID(appLogger *logger.APIlogger, xAuthToken, projectID st
 /*
  // b.1 Keystone retrieve application credentials, returns status code 201
 func (k KeystoneService) AuthenticateToken() (Token, error) {
-	fullUrl := "https://pub1.infomaniak.cloud/identity/v3/auth/tokens"
+	endpoint := "https://pub1.infomaniak.cloud/identity/v3/auth/tokens"
 	// the headers to pass - none required for this test
 	headers := map[string]string{
 		"Content-Type": "application/json",
@@ -207,17 +176,17 @@ func (k KeystoneService) AuthenticateToken() (Token, error) {
 	queryParameters := url.Values{}
 	authReq := models.CredentialPayload()
 	// Convert the request payload to JSON (like json_encode)
-	reqBody, err := json.Marshal(authReq)
+	requestBody, err := json.Marshal(authReq)
 	if err != nil {
 		appLogger.Fatalf("Error while coverting: %s", err)
 	} else {
-		appLogger.Infof("Payload converted, JSON: %s", reqBody)
+		appLogger.Infof("Payload converted, JSON: %s", requestBody)
 	}
-	body := bytes.NewReader(reqBody)
+	body := bytes.NewReader(requestBody)
 
 	var rsp map[string]interface{}
 	// http request
-	response, responseHeaders, err := MakeHTTPRequest(fullUrl, "POST", headers, queryParameters, body, rsp)
+	response, responseHeaders, err := MakeHTTPRequest(endpoint, "POST", headers, queryParameters, body, rsp)
 	if err != nil {
 		panic(err)
 	}
@@ -232,4 +201,12 @@ func (k KeystoneService) AuthenticateToken() (Token, error) {
 	//appLogger.Infof("Content-Type header: %s", headersValue)
 	//appLogger.Infof("Application Credential response: %+v", response)
 	return Token{}, nil
+}  */
+
+/* func GetKeystoneServiceInstance() *KeystoneService {
+	once.Do(func() {
+		instance = &KeystoneService{}
+		// Add initialization logic if necessary
+	})
+	return instance
 }  */

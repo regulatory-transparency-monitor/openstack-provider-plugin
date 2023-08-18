@@ -1,31 +1,30 @@
 package main
 
 import (
-	"collector-service/config"
-	"collector-service/pkg/api"
-	"collector-service/pkg/logger"
-	"collector-service/pkg/services"
+	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"time"
+
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/config"
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/api"
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/logger"
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/services"
 )
 
 func main() {
 
-	// Get config path
-	cfgPath := getConfigPath(os.Getenv("config"))
-	// Load config file
-	cfgFile, err := config.LoadConfig(cfgPath)
-	if err != nil {
-		log.Fatalf("LoadConfig: %v", err)
+	cwd, _ := os.Getwd()
+	fmt.Println("Current working directory:", cwd)
+	dirPath := "../../pkg/logger/"
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		os.MkdirAll(dirPath, os.ModePerm) // Creates the directory along with any necessary parents
 	}
-	// Parse config file
-	cfg, err := config.ParseConfig(cfgFile)
-	if err != nil {
-		log.Fatalf("ParseConfig: %v", err)
-	}
+	// create a new config
+	cfg, err := Init()
 
+	if err != nil {
+		log.Fatalf("Error: %s", err)
+	}
 	// create logger
 	appLogger := logger.NewAPIlogger(cfg)
 	appLogger.InitLogger()
@@ -35,14 +34,32 @@ func main() {
 	novaService := &api.NovaService{}
 
 	// Create a new Provider
-	provider := &services.Provider{Keystone: keystoneService, Nova: novaService}
-
-	// Call the main function of your application
-	err = provider.InitializeScan(appLogger)
+	t := &services.OpenStackPlugin{Keystone: keystoneService, Nova: novaService}
+	t.Initialize()
+	_, err = t.Scan()
 	if err != nil {
-		log.Fatalf("Error: %s", err)
+		appLogger.Errorf("Scan Error: %s", err)
 	}
 
+}
+
+func Init() (*config.Config, error) {
+	// Get config path
+	cfgPath := getConfigPath(os.Getenv("../config"))
+
+	log.Printf("cfgPath: %s", cfgPath)
+	// Load config file
+	cfgFile, err := config.LoadConfig(cfgPath)
+	if err != nil {
+		log.Fatalf("LoadConfig: %v", err)
+	}
+
+	// Parse config file
+	cfg, err := config.ParseConfig(cfgFile)
+	if err != nil {
+		log.Fatalf("ParseConfig: %v", err)
+	}
+	return cfg, err
 }
 
 /*
@@ -144,19 +161,10 @@ func getProjectDetailsByID(appLogger *logger.APIlogger, xAuthToken, projectID st
 	sendAuthRequest(appLogger, xAuthToken, projectID)
 } */
 
-func httpClient(appLogger *logger.APIlogger) *http.Client {
-	client := &http.Client{
-		Timeout: 20 * time.Second,
-	}
-	appLogger.Infof("Token Response Body: %s", client)
-
-	return client
-}
-
 // Get config path for local or docker
 func getConfigPath(configPath string) string {
 	if configPath == "docker" {
-		return "./config/config-docker"
+		return "../config/config-docker"
 	}
-	return "./config/config-local"
+	return "../config/config-local"
 }

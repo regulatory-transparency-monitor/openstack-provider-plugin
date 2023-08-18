@@ -1,75 +1,62 @@
 package services
 
 import (
-	"collector-service/internal/repository"
-	"collector-service/pkg/logger"
-	"context"
+	"fmt"
+
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/api"
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/client"
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/repository"
 )
 
-type Provider struct {
+// OpenStackPlugin is a struct that holds the Keystone and Nova services
+type OpenStackPlugin struct {
 	Keystone repository.KeystoneRepository
 	Nova     repository.NovaRepository
 }
 
-func (p Provider) InitializeScan(appLogger *logger.APIlogger) error {
-	ctx := context.Background()
+type ScanResult struct {
+    Source string
+    Data   []interface{}  // or CommonDataInterface
+}
+
+func (provider *OpenStackPlugin) Initialize() error {
+	httpClient := client.NewClient("https://api.pub1.infomaniak.cloud/")
+
+	provider.Keystone = &api.KeystoneService{
+		BaseURL: "identity/v3/",
+		Client:  httpClient,
+		// provide url and credentials here
+	}
+	provider.Nova = &api.NovaService{
+		BaseURL: "compute/v2.1/",
+		Client:  httpClient,
+	}
+
+	return nil
+
+}
+
+// Sample scan function that returns a list of projects and servers
+func (provider *OpenStackPlugin) Scan() ([]interface{}, error) {
 
 	// returns a auth token and project ID
-	auth, err := p.Keystone.Authenticate(ctx)
+	id, err := provider.Keystone.Authenticate()
 	if err != nil {
-		appLogger.Infof("Authentication Error: %+v\n", err)
-		return err
+		return nil, err
 	}
-	
-	// returns a list of projects
-	projectModel, err := p.Keystone.GetProjects()
+	projectModel, err := provider.Keystone.GetProjectDetailsByID(id)
 	if err != nil {
-		appLogger.Fatalf("Error while coverting: %s\n", err)
+		return nil, err
 	}
-	
-	// returns a list of servers
-	serverModel, err := p.Nova.GetServers(auth)
+
+	serverListModel, err := provider.Nova.GetServerListByProjectID(id)
 	if err != nil {
-		appLogger.Infof("G %+v\n", err)
-
-		return err
+		return nil, err
 	}
-	
-	appLogger.Infof("Project Details: %+v\n", projectModel)
 
-	appLogger.Infof("Server List: %+v\n", serverModel)
+	fmt.Println("Project Details:", projectModel)
+	fmt.Println("Server List:", serverListModel)
 
-	// send to collector service ?!
-	return err
+	return []interface{}{projectModel, serverListModel}, err
 }
 
-/*
-func (p Provider) GetProjects() error {
-	// Authenticate using Keystone
-	err := p.Keystone.Authenticate()
-	if err != nil {
-		return err
-	}
-	ProjectDetails, err := p.Keystone.GetProjects()
-
-	fmt.Printf("Project Details: %+v", ProjectDetails)
-	// Get projects
-	// projects, _ := p.keystone.GetProjects()
-
-	// ... process data ...
-
-	return err
-} */
-
-func (p Provider) GetServerInfo() {
-	// Authenticate using Keystone
-
-	// Get projects, users, and servers
-	/*projects, _ := p.keystone.GetProjects()
-	users, _ := p.keystone.GetUsers()
-	servers, _ := p.nova.GetServers()*/
-
-	// ... process data ...
-
-	// return servers, nil
-}
