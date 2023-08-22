@@ -6,14 +6,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/client"
-
+	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/httpwrapper"
 	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/models"
 )
 
 type KeystoneService struct {
 	BaseURL string
-	Client  *client.HTTPClient
+	Client  *httpwrapper.HTTPClient
 }
 
 func (k *KeystoneService) Authenticate() (string, error) {
@@ -57,29 +56,29 @@ func (k *KeystoneService) Authenticate() (string, error) {
 }
 
 // GetProject by ID, returns project Details
-func (k *KeystoneService) GetProjectDetailsByID(projectID string) (*models.ProjectDetails, error) {
+func (k *KeystoneService) GetProjectDetailsByID(projectID string) (models.ProjectDetails, error) {
 	endpoint := fmt.Sprintf("%sprojects/%v", k.BaseURL, projectID)
 
 	// Construct the GET request.
 	req, err := k.Client.NewRequest("GET", endpoint, nil, nil)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
+		return models.ProjectDetails{}, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	// Execute the request.
 	res, err := k.Client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("execute request failed: %w", err)
+		return models.ProjectDetails{}, fmt.Errorf("execute request failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	// Read and decode the response.
 	var projectDetails models.ProjectDetails
 	if err := json.NewDecoder(res.Body).Decode(&projectDetails); err != nil {
-		return nil, fmt.Errorf("failed to decode response: %w", err)
+		return models.ProjectDetails{}, fmt.Errorf("failed to decode response: %w", err)
 	}
 
-	return &projectDetails, nil
+	return projectDetails, nil
 }
 
 /* // Implements the KeystoneRepository interface

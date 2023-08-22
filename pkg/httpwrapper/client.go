@@ -1,4 +1,4 @@
-package client
+package httpwrapper
 
 import (
 	"fmt"
