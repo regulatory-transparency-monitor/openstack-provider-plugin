@@ -1,0 +1,808 @@
+{
+    "keystone": [
+      {
+        "project": {
+          "id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "name": "PCP-JMY29J4",
+          "domain_id": "default",
+          "description": "ghost-town",
+          "enabled": true,
+          "parent_id": "default",
+          "is_domain": false,
+          "tags": [],
+          "options": {},
+          "links": {
+            "self": "https://api.pub1.infomaniak.cloud/identity/v3/projects/c6b10513ac5542fd844a1f6c7c4bca80"
+          }
+        }
+      }
+    ],
+    "nova": [
+      {
+        "server": {
+          "id": "ee6484ea-2b33-46c6-938d-bc47c11d017b",
+          "name": "k8s-demo-k8s-master-1",
+          "status": "ACTIVE",
+          "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+          "metadata": {
+            "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+            "kubespray_groups": "etcd,kube_control_plane,,k8s_cluster",
+            "ssh_user": "debian",
+            "use_access_ip": "1"
+          },
+          "hostId": "968db9b85db38948b7c7861d0d07baabf7bf92b8a5ec541eaba20a98",
+          "image": {
+            "id": "191eeab3-ea10-4c9a-a9f8-497640a8439b",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/images/191eeab3-ea10-4c9a-a9f8-497640a8439b"
+              }
+            ]
+          },
+          "flavor": {
+            "id": "60298864-77b4-4058-9861-50fea072c5fd",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/flavors/60298864-77b4-4058-9861-50fea072c5fd"
+              }
+            ]
+          },
+          "created": "2023-05-11T15:19:38Z",
+          "updated": "2023-08-22T19:17:06Z",
+          "addresses": {
+            "demo-cluster": [
+              {
+                "version": 4,
+                "addr": "10.10.0.184",
+                "OS-EXT-IPS:type": "fixed",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:aa:b8:65"
+              },
+              {
+                "version": 4,
+                "addr": "195.15.192.87",
+                "OS-EXT-IPS:type": "floating",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:aa:b8:65"
+              }
+            ]
+          },
+          "accessIPv4": "",
+          "accessIPv6": "",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/ee6484ea-2b33-46c6-938d-bc47c11d017b"
+            },
+            {
+              "rel": "bookmark",
+              "href": "https://api.pub1.infomaniak.cloud/servers/ee6484ea-2b33-46c6-938d-bc47c11d017b"
+            }
+          ],
+          "OS-DCF:diskConfig": "MANUAL",
+          "progress": 0,
+          "OS-EXT-AZ:availability_zone": "dc3-a-04",
+          "config_drive": "True",
+          "key_name": "kubernetes-k8s-demo",
+          "OS-SRV-USG:launched_at": "2023-07-11T12:28:43.000000",
+          "OS-SRV-USG:terminated_at": null,
+          "security_groups": [
+            {
+              "name": "k8s-demo-k8s-master"
+            },
+            {
+              "name": "k8s-demo-k8s"
+            }
+          ],
+          "OS-EXT-STS:task_state": null,
+          "OS-EXT-STS:vm_state": "active",
+          "OS-EXT-STS:power_state": 1,
+          "os-extended-volumes:volumes_attached": []
+        }
+      },
+      {
+        "server": {
+          "id": "1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1",
+          "name": "k8s-demo-k8s-node-nf-2",
+          "status": "ACTIVE",
+          "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+          "metadata": {
+            "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+            "kubespray_groups": "kube_node,k8s_cluster,no_floating,",
+            "ssh_user": "debian",
+            "use_access_ip": "1"
+          },
+          "hostId": "58c781f1de7135467936e65b8a05dd27c55c6e19a39ce1108c82cc83",
+          "image": {
+            "id": "191eeab3-ea10-4c9a-a9f8-497640a8439b",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/images/191eeab3-ea10-4c9a-a9f8-497640a8439b"
+              }
+            ]
+          },
+          "flavor": {
+            "id": "d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/flavors/d120e7de-01a3-4aca-b7e6-0fae9e9e7937"
+              }
+            ]
+          },
+          "created": "2023-05-11T15:11:43Z",
+          "updated": "2023-08-25T08:53:47Z",
+          "addresses": {
+            "demo-cluster": [
+              {
+                "version": 4,
+                "addr": "10.10.0.198",
+                "OS-EXT-IPS:type": "fixed",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:59:08:09"
+              }
+            ]
+          },
+          "accessIPv4": "",
+          "accessIPv6": "",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1"
+            },
+            {
+              "rel": "bookmark",
+              "href": "https://api.pub1.infomaniak.cloud/servers/1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1"
+            }
+          ],
+          "OS-DCF:diskConfig": "MANUAL",
+          "progress": 0,
+          "OS-EXT-AZ:availability_zone": "dc3-a-09",
+          "config_drive": "True",
+          "key_name": "kubernetes-k8s-demo",
+          "OS-SRV-USG:launched_at": "2023-05-11T15:11:53.000000",
+          "OS-SRV-USG:terminated_at": null,
+          "security_groups": [
+            {
+              "name": "k8s-demo-k8s-worker"
+            },
+            {
+              "name": "k8s-demo-k8s"
+            }
+          ],
+          "OS-EXT-STS:task_state": null,
+          "OS-EXT-STS:vm_state": "active",
+          "OS-EXT-STS:power_state": 1,
+          "os-extended-volumes:volumes_attached": [
+            {
+              "id": "a7e6bdef-37ef-4f18-b2c5-972e709403fb"
+            },
+            {
+              "id": "5315b412-8474-48cc-b98d-4ae19f0e7651"
+            }
+          ]
+        }
+      },
+      {
+        "server": {
+          "id": "fdedd0fb-bee8-459c-81a9-bba3f943c93c",
+          "name": "k8s-demo-k8s-node-nf-1",
+          "status": "ACTIVE",
+          "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+          "metadata": {
+            "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+            "kubespray_groups": "kube_node,k8s_cluster,no_floating,",
+            "ssh_user": "debian",
+            "use_access_ip": "1"
+          },
+          "hostId": "968db9b85db38948b7c7861d0d07baabf7bf92b8a5ec541eaba20a98",
+          "image": {
+            "id": "191eeab3-ea10-4c9a-a9f8-497640a8439b",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/images/191eeab3-ea10-4c9a-a9f8-497640a8439b"
+              }
+            ]
+          },
+          "flavor": {
+            "id": "d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/flavors/d120e7de-01a3-4aca-b7e6-0fae9e9e7937"
+              }
+            ]
+          },
+          "created": "2023-05-11T15:11:43Z",
+          "updated": "2023-08-22T19:17:07Z",
+          "addresses": {
+            "demo-cluster": [
+              {
+                "version": 4,
+                "addr": "10.10.0.59",
+                "OS-EXT-IPS:type": "fixed",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:02:c7:52"
+              }
+            ]
+          },
+          "accessIPv4": "",
+          "accessIPv6": "",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/fdedd0fb-bee8-459c-81a9-bba3f943c93c"
+            },
+            {
+              "rel": "bookmark",
+              "href": "https://api.pub1.infomaniak.cloud/servers/fdedd0fb-bee8-459c-81a9-bba3f943c93c"
+            }
+          ],
+          "OS-DCF:diskConfig": "MANUAL",
+          "progress": 0,
+          "OS-EXT-AZ:availability_zone": "dc3-a-04",
+          "config_drive": "True",
+          "key_name": "kubernetes-k8s-demo",
+          "OS-SRV-USG:launched_at": "2023-07-11T12:29:04.000000",
+          "OS-SRV-USG:terminated_at": null,
+          "security_groups": [
+            {
+              "name": "k8s-demo-k8s-worker"
+            },
+            {
+              "name": "k8s-demo-k8s"
+            }
+          ],
+          "OS-EXT-STS:task_state": null,
+          "OS-EXT-STS:vm_state": "active",
+          "OS-EXT-STS:power_state": 1,
+          "os-extended-volumes:volumes_attached": []
+        }
+      }
+    ]
+  }
+
+  {
+    "os_instace": [
+      {
+        "server": {
+          "id": "ee6484ea-2b33-46c6-938d-bc47c11d017b",
+          "name": "k8s-demo-k8s-master-1",
+          "status": "ACTIVE",
+          "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+          "metadata": {
+            "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+            "kubespray_groups": "etcd,kube_control_plane,,k8s_cluster",
+            "ssh_user": "debian",
+            "use_access_ip": "1"
+          },
+          "hostId": "968db9b85db38948b7c7861d0d07baabf7bf92b8a5ec541eaba20a98",
+          "image": {
+            "id": "191eeab3-ea10-4c9a-a9f8-497640a8439b",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/images/191eeab3-ea10-4c9a-a9f8-497640a8439b"
+              }
+            ]
+          },
+          "flavor": {
+            "id": "60298864-77b4-4058-9861-50fea072c5fd",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/flavors/60298864-77b4-4058-9861-50fea072c5fd"
+              }
+            ]
+          },
+          "created": "2023-05-11T15:19:38Z",
+          "updated": "2023-08-22T19:17:06Z",
+          "addresses": {
+            "demo-cluster": [
+              {
+                "version": 4,
+                "addr": "10.10.0.184",
+                "OS-EXT-IPS:type": "fixed",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:aa:b8:65"
+              },
+              {
+                "version": 4,
+                "addr": "195.15.192.87",
+                "OS-EXT-IPS:type": "floating",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:aa:b8:65"
+              }
+            ]
+          },
+          "accessIPv4": "",
+          "accessIPv6": "",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/ee6484ea-2b33-46c6-938d-bc47c11d017b"
+            },
+            {
+              "rel": "bookmark",
+              "href": "https://api.pub1.infomaniak.cloud/servers/ee6484ea-2b33-46c6-938d-bc47c11d017b"
+            }
+          ],
+          "OS-DCF:diskConfig": "MANUAL",
+          "progress": 0,
+          "OS-EXT-AZ:availability_zone": "dc3-a-04",
+          "config_drive": "True",
+          "key_name": "kubernetes-k8s-demo",
+          "OS-SRV-USG:launched_at": "2023-07-11T12:28:43.000000",
+          "OS-SRV-USG:terminated_at": null,
+          "security_groups": [
+            {
+              "name": "k8s-demo-k8s-master"
+            },
+            {
+              "name": "k8s-demo-k8s"
+            }
+          ],
+          "OS-EXT-STS:task_state": null,
+          "OS-EXT-STS:vm_state": "active",
+          "OS-EXT-STS:power_state": 1,
+          "os-extended-volumes:volumes_attached": []
+        }
+      },
+      {
+        "server": {
+          "id": "1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1",
+          "name": "k8s-demo-k8s-node-nf-2",
+          "status": "ACTIVE",
+          "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+          "metadata": {
+            "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+            "kubespray_groups": "kube_node,k8s_cluster,no_floating,",
+            "ssh_user": "debian",
+            "use_access_ip": "1"
+          },
+          "hostId": "58c781f1de7135467936e65b8a05dd27c55c6e19a39ce1108c82cc83",
+          "image": {
+            "id": "191eeab3-ea10-4c9a-a9f8-497640a8439b",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/images/191eeab3-ea10-4c9a-a9f8-497640a8439b"
+              }
+            ]
+          },
+          "flavor": {
+            "id": "d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/flavors/d120e7de-01a3-4aca-b7e6-0fae9e9e7937"
+              }
+            ]
+          },
+          "created": "2023-05-11T15:11:43Z",
+          "updated": "2023-08-25T08:53:47Z",
+          "addresses": {
+            "demo-cluster": [
+              {
+                "version": 4,
+                "addr": "10.10.0.198",
+                "OS-EXT-IPS:type": "fixed",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:59:08:09"
+              }
+            ]
+          },
+          "accessIPv4": "",
+          "accessIPv6": "",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1"
+            },
+            {
+              "rel": "bookmark",
+              "href": "https://api.pub1.infomaniak.cloud/servers/1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1"
+            }
+          ],
+          "OS-DCF:diskConfig": "MANUAL",
+          "progress": 0,
+          "OS-EXT-AZ:availability_zone": "dc3-a-09",
+          "config_drive": "True",
+          "key_name": "kubernetes-k8s-demo",
+          "OS-SRV-USG:launched_at": "2023-05-11T15:11:53.000000",
+          "OS-SRV-USG:terminated_at": null,
+          "security_groups": [
+            {
+              "name": "k8s-demo-k8s-worker"
+            },
+            {
+              "name": "k8s-demo-k8s"
+            }
+          ],
+          "OS-EXT-STS:task_state": null,
+          "OS-EXT-STS:vm_state": "active",
+          "OS-EXT-STS:power_state": 1,
+          "os-extended-volumes:volumes_attached": [
+            {
+              "id": "a7e6bdef-37ef-4f18-b2c5-972e709403fb"
+            },
+            {
+              "id": "5315b412-8474-48cc-b98d-4ae19f0e7651"
+            }
+          ]
+        }
+      },
+      {
+        "server": {
+          "id": "fdedd0fb-bee8-459c-81a9-bba3f943c93c",
+          "name": "k8s-demo-k8s-node-nf-1",
+          "status": "ACTIVE",
+          "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+          "metadata": {
+            "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+            "kubespray_groups": "kube_node,k8s_cluster,no_floating,",
+            "ssh_user": "debian",
+            "use_access_ip": "1"
+          },
+          "hostId": "968db9b85db38948b7c7861d0d07baabf7bf92b8a5ec541eaba20a98",
+          "image": {
+            "id": "191eeab3-ea10-4c9a-a9f8-497640a8439b",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/images/191eeab3-ea10-4c9a-a9f8-497640a8439b"
+              }
+            ]
+          },
+          "flavor": {
+            "id": "d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+            "links": [
+              {
+                "rel": "bookmark",
+                "href": "https://api.pub1.infomaniak.cloud/flavors/d120e7de-01a3-4aca-b7e6-0fae9e9e7937"
+              }
+            ]
+          },
+          "created": "2023-05-11T15:11:43Z",
+          "updated": "2023-08-22T19:17:07Z",
+          "addresses": {
+            "demo-cluster": [
+              {
+                "version": 4,
+                "addr": "10.10.0.59",
+                "OS-EXT-IPS:type": "fixed",
+                "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:02:c7:52"
+              }
+            ]
+          },
+          "accessIPv4": "",
+          "accessIPv6": "",
+          "links": [
+            {
+              "rel": "self",
+              "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/fdedd0fb-bee8-459c-81a9-bba3f943c93c"
+            },
+            {
+              "rel": "bookmark",
+              "href": "https://api.pub1.infomaniak.cloud/servers/fdedd0fb-bee8-459c-81a9-bba3f943c93c"
+            }
+          ],
+          "OS-DCF:diskConfig": "MANUAL",
+          "progress": 0,
+          "OS-EXT-AZ:availability_zone": "dc3-a-04",
+          "config_drive": "True",
+          "key_name": "kubernetes-k8s-demo",
+          "OS-SRV-USG:launched_at": "2023-07-11T12:29:04.000000",
+          "OS-SRV-USG:terminated_at": null,
+          "security_groups": [
+            {
+              "name": "k8s-demo-k8s-worker"
+            },
+            {
+              "name": "k8s-demo-k8s"
+            }
+          ],
+          "OS-EXT-STS:task_state": null,
+          "OS-EXT-STS:vm_state": "active",
+          "OS-EXT-STS:power_state": 1,
+          "os-extended-volumes:volumes_attached": []
+        }
+      }
+    ],
+    "os_project": [
+      {
+        "project": {
+          "id": "c6b10513ac5542fd844a1f6c7c4bca80",
+          "name": "PCP-JMY29J4",
+          "domain_id": "default",
+          "description": "ghost-town",
+          "enabled": true,
+          "parent_id": "default",
+          "is_domain": false,
+          "tags": [],
+          "options": {},
+          "links": {
+            "self": "https://api.pub1.infomaniak.cloud/identity/v3/projects/c6b10513ac5542fd844a1f6c7c4bca80"
+          }
+        }
+      }
+    ],
+    "os_volume": [
+      {
+        "attachments": [
+          {
+            "attached_at": "2023-08-25T08:53:21.000000",
+            "attachment_id": "1a42a86b-1759-467f-878b-3e8b2080e86b",
+            "device": "/dev/sdc",
+            "host_name": null,
+            "id": "5315b412-8474-48cc-b98d-4ae19f0e7651",
+            "server_id": "1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1",
+            "volume_id": "5315b412-8474-48cc-b98d-4ae19f0e7651"
+          }
+        ],
+        "availability_zone": "nova",
+        "bootable": "false",
+        "consistencygroup_id": null,
+        "created_at": "2023-08-24T22:25:50.000000",
+        "description": "",
+        "encrypted": false,
+        "id": "5315b412-8474-48cc-b98d-4ae19f0e7651",
+        "links": [
+          {
+            "href": "https://api.pub1.infomaniak.cloud/volume/v3/c6b10513ac5542fd844a1f6c7c4bca80/volumes/5315b412-8474-48cc-b98d-4ae19f0e7651",
+            "rel": "self"
+          },
+          {
+            "href": "https://api.pub1.infomaniak.cloud/volume/c6b10513ac5542fd844a1f6c7c4bca80/volumes/5315b412-8474-48cc-b98d-4ae19f0e7651",
+            "rel": "bookmark"
+          }
+        ],
+        "metadata": {},
+        "multiattach": false,
+        "name": "volume-2",
+        "os-vol-tenant-attr:tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+        "replication_status": null,
+        "size": 1,
+        "snapshot_id": null,
+        "source_volid": null,
+        "status": "in-use",
+        "updated_at": "2023-08-25T08:53:23.000000",
+        "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+        "volume_type": "CEPH_1_perf1"
+      }
+    ]
+  }
+
+
+{
+  "project": [
+    {
+      "is_domain": false,
+      "description": "ghost-town",
+      "domain_id": "default",
+      "enabled": true,
+      "id": "c6b10513ac5542fd844a1f6c7c4bca80",
+      "name": "PCP-JMY29J4",
+      "parent_id": "default"
+    }
+  ],
+  "servers": [
+    {
+      "id": "ee6484ea-2b33-46c6-938d-bc47c11d017b",
+      "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+      "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+      "name": "k8s-demo-k8s-master-1",
+      "updated": "2023-09-15T15:59:38Z",
+      "created": "2023-05-11T15:19:38Z",
+      "hostid": "968db9b85db38948b7c7861d0d07baabf7bf92b8a5ec541eaba20a98",
+      "status": "ACTIVE",
+      "progress": 0,
+      "accessIPv4": "",
+      "accessIPv6": "",
+      "flavor": {
+        "id": "60298864-77b4-4058-9861-50fea072c5fd",
+        "links": [
+          {
+            "href": "https://api.pub1.infomaniak.cloud/flavors/60298864-77b4-4058-9861-50fea072c5fd",
+            "rel": "bookmark"
+          }
+        ]
+      },
+      "addresses": {
+        "demo-cluster": [
+          {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:aa:b8:65",
+            "OS-EXT-IPS:type": "fixed",
+            "addr": "10.10.0.184",
+            "version": 4
+          },
+          {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:aa:b8:65",
+            "OS-EXT-IPS:type": "floating",
+            "addr": "195.15.192.87",
+            "version": 4
+          }
+        ]
+      },
+      "metadata": {
+        "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+        "kubespray_groups": "etcd,kube_control_plane,,k8s_cluster",
+        "ssh_user": "debian",
+        "use_access_ip": "1"
+      },
+      "links": [
+        {
+          "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/ee6484ea-2b33-46c6-938d-bc47c11d017b",
+          "rel": "self"
+        },
+        {
+          "href": "https://api.pub1.infomaniak.cloud/servers/ee6484ea-2b33-46c6-938d-bc47c11d017b",
+          "rel": "bookmark"
+        }
+      ],
+      "key_name": "kubernetes-k8s-demo",
+      "adminPass": "",
+      "security_groups": [
+        {
+          "name": "k8s-demo-k8s-master"
+        },
+        {
+          "name": "k8s-demo-k8s"
+        }
+      ],
+      "os-extended-volumes:volumes_attached": [],
+      "fault": {
+        "code": 0,
+        "created": "0001-01-01T00:00:00Z",
+        "details": "",
+        "message": ""
+      },
+      "tags": null,
+      "server_groups": null
+    },
+    {
+      "id": "1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1",
+      "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+      "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+      "name": "k8s-demo-k8s-node-nf-2",
+      "updated": "2023-09-15T22:28:26Z",
+      "created": "2023-05-11T15:11:43Z",
+      "hostid": "58c781f1de7135467936e65b8a05dd27c55c6e19a39ce1108c82cc83",
+      "status": "ACTIVE",
+      "progress": 0,
+      "accessIPv4": "",
+      "accessIPv6": "",
+      "flavor": {
+        "id": "d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+        "links": [
+          {
+            "href": "https://api.pub1.infomaniak.cloud/flavors/d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+            "rel": "bookmark"
+          }
+        ]
+      },
+      "addresses": {
+        "demo-cluster": [
+          {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:59:08:09",
+            "OS-EXT-IPS:type": "fixed",
+            "addr": "10.10.0.198",
+            "version": 4
+          }
+        ]
+      },
+      "metadata": {
+        "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+        "kubespray_groups": "kube_node,k8s_cluster,no_floating,",
+        "ssh_user": "debian",
+        "use_access_ip": "1"
+      },
+      "links": [
+        {
+          "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1",
+          "rel": "self"
+        },
+        {
+          "href": "https://api.pub1.infomaniak.cloud/servers/1bdf257e-00a3-42fc-aa8c-b01b8a45b9c1",
+          "rel": "bookmark"
+        }
+      ],
+      "key_name": "kubernetes-k8s-demo",
+      "adminPass": "",
+      "security_groups": [
+        {
+          "name": "k8s-demo-k8s-worker"
+        },
+        {
+          "name": "k8s-demo-k8s"
+        }
+      ],
+      "os-extended-volumes:volumes_attached": [
+        {
+          "id": "a7e6bdef-37ef-4f18-b2c5-972e709403fb"
+        },
+        {
+          "id": "5315b412-8474-48cc-b98d-4ae19f0e7651"
+        }
+      ],
+      "fault": {
+        "code": 0,
+        "created": "0001-01-01T00:00:00Z",
+        "details": "",
+        "message": ""
+      },
+      "tags": null,
+      "server_groups": null
+    },
+    {
+      "id": "fdedd0fb-bee8-459c-81a9-bba3f943c93c",
+      "tenant_id": "c6b10513ac5542fd844a1f6c7c4bca80",
+      "user_id": "c7ffb1b9ce3543b690da1fecfb008415",
+      "name": "k8s-demo-k8s-node-nf-1",
+      "updated": "2023-09-15T22:28:25Z",
+      "created": "2023-05-11T15:11:43Z",
+      "hostid": "968db9b85db38948b7c7861d0d07baabf7bf92b8a5ec541eaba20a98",
+      "status": "ACTIVE",
+      "progress": 0,
+      "accessIPv4": "",
+      "accessIPv6": "",
+      "flavor": {
+        "id": "d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+        "links": [
+          {
+            "href": "https://api.pub1.infomaniak.cloud/flavors/d120e7de-01a3-4aca-b7e6-0fae9e9e7937",
+            "rel": "bookmark"
+          }
+        ]
+      },
+      "addresses": {
+        "demo-cluster": [
+          {
+            "OS-EXT-IPS-MAC:mac_addr": "fa:16:3e:02:c7:52",
+            "OS-EXT-IPS:type": "fixed",
+            "addr": "10.10.0.59",
+            "version": 4
+          }
+        ]
+      },
+      "metadata": {
+        "depends_on": " 45b98d4d-981f-4170-ae56-2bd6aadf2c20 ",
+        "kubespray_groups": "kube_node,k8s_cluster,no_floating,",
+        "ssh_user": "debian",
+        "use_access_ip": "1"
+      },
+      "links": [
+        {
+          "href": "https://api.pub1.infomaniak.cloud/v2.1/servers/fdedd0fb-bee8-459c-81a9-bba3f943c93c",
+          "rel": "self"
+        },
+        {
+          "href": "https://api.pub1.infomaniak.cloud/servers/fdedd0fb-bee8-459c-81a9-bba3f943c93c",
+          "rel": "bookmark"
+        }
+      ],
+      "key_name": "kubernetes-k8s-demo",
+      "adminPass": "",
+      "security_groups": [
+        {
+          "name": "k8s-demo-k8s-worker"
+        },
+        {
+          "name": "k8s-demo-k8s"
+        }
+      ],
+      "os-extended-volumes:volumes_attached": [],
+      "fault": {
+        "code": 0,
+        "created": "0001-01-01T00:00:00Z",
+        "details": "",
+        "message": ""
+      },
+      "tags": null,
+      "server_groups": null
+    }
+  ]
+}

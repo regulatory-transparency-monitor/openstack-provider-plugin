@@ -33,7 +33,8 @@ type Server struct {
 	TaskState        *string               `json:"OS-EXT-STS:task_state"`
 	VMState          string                `json:"OS-EXT-STS:vm_state"`
 	PowerState       int                   `json:"OS-EXT-STS:power_state"`
-	VolumesAttached  []string              `json:"os-extended-volumes:volumes_attached"`
+	VolumesAttached  []interface{}         `json:"os-extended-volumes:volumes_attached"`
+	//VolumesAttached  []string              `json:"os-extended-volumes:volumes_attached"`
 }
 
 type ServerMetadata struct {

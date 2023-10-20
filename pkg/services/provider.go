@@ -5,27 +5,21 @@ import (
 	"fmt"
 	"log"
 
+	shared "github.com/regulatory-transparency-monitor/commons/models"
 	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/api"
 	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/httpwrapper"
 	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/interfaces"
+	m "github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/models"
 )
 
 // OpenStackPlugin is a struct holding Keystone and Nova service
 type OpenStackPlugin struct {
 	Keystone interfaces.KeystoneAPI
 	Nova     interfaces.NovaAPI
+	Cinder   interfaces.CinderAPI
 }
 type APIContext struct {
 	ProjectID string
-}
-
-type CombinedResources struct {
-	Source string
-	Data   []ServiceData
-}
-type ServiceData struct {
-	ServiceSource string
-	Data          []interface{}
 }
 
 // TODO pass base url and credentials as parameters from the graph builder service
@@ -41,44 +35,124 @@ func (provider *OpenStackPlugin) Initialize() error {
 		BaseURL: "compute/v2.1/",
 		Client:  httpClient,
 	}
+	provider.Cinder = &api.CinderService{
+		BaseURL: "volume/v3/",
+		Client:  httpClient,
+	}
 
 	return nil
 
 }
 
-// Scan returns fetched data from OpenStack API
-func (provider *OpenStackPlugin) Scan() (*CombinedResources, error) {
-	var resources CombinedResources
-
-	resources.Source = "openstack"
+func (provider *OpenStackPlugin) FetchData() (shared.RawData, error) {
+	data := make(shared.RawData)
 	// Initialize the context for shared paramters
 	ctx, err := provider.initContext()
 	if err != nil {
-		return nil, err
+		return data, err
 	}
 
 	keystoneData, err := provider.FetchKeystoneData(ctx)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
-	//PrintAsJSON(keystoneData)
-
-	resources.Data = append(resources.Data, *keystoneData)
 
 	novaData, err := provider.FetchNovaData(ctx)
 	if err != nil {
-		return nil, err
+		return data, err
 	}
-	// PrintAsJSON(novaData)
-	resources.Data = append(resources.Data, *novaData)
 
-	//PrintAsJSON(resources)
-	/* jsonData, err := json.Marshal(resources)
+	cinderData, err := provider.FetchCinderData(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	cinderSnapshots, err := provider.FetchCinderSnapshots(ctx)
+	if err != nil {
+		return data, err
+	}
+
+	//PrintAsJSON(cinderSnapshots)
+	data["os_project"] = []interface{}{keystoneData}
+	data["os_instance"] = novaData
+	data["os_volume"] = cinderData
+	data["os_snapshot"] = cinderSnapshots
+
+	return data, nil
+}
+func (provider *OpenStackPlugin) FetchKeystoneData(ctx *APIContext) (*m.ProjectDetails, error) {
+	projectID, err := provider.Keystone.Authenticate()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	projectModel, err := provider.Keystone.GetProjectDetailsByID(projectID)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	ctx.ProjectID = projectID
+
+	return &projectModel, nil
+}
+
+func (provider *OpenStackPlugin) FetchNovaData(ctx *APIContext) ([]interface{}, error) {
+	var serverDetailsList []interface{}
+
+	projectID := ctx.ProjectID
+
+	serverList, err := provider.Nova.GetServerListByProjectID(projectID)
+	if err != nil {
+		return serverDetailsList, err
+	}
+
+	for _, server := range serverList.Servers {
+		serverDetails, err := provider.Nova.GetServerByID(server.ID)
 		if err != nil {
-	    	log.Fatalf("Failed to marshal data: %v", err)
+			return serverDetailsList, err
 		}
-	jsonString := string(jsonData */
-	return &resources, nil
+		serverDetailsList = append(serverDetailsList, serverDetails)
+	}
+
+	return serverDetailsList, nil
+}
+
+func (provider *OpenStackPlugin) FetchCinderData(ctx *APIContext) ([]interface{}, error) {
+	var volumeDetailsList []interface{}
+	// Use the project ID from the context
+	projectID := ctx.ProjectID
+	// List of hard-coded volume IDs
+	volumeIDs := []string{
+		"b5d527e9-0441-4db8-b2f1-b0de5f0ca4ea",
+		"8227897a-61d2-408b-a22d-c98705fcb39b",
+	}
+	for _, volumeID := range volumeIDs {
+		volumeDetails, err := provider.Cinder.GetVolumeByID(volumeID, projectID)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+		volumeDetailsList = append(volumeDetailsList, volumeDetails)
+	}
+
+	return volumeDetailsList, nil
+}
+func (provider *OpenStackPlugin) FetchCinderSnapshots(ctx *APIContext) ([]interface{}, error) {
+	var snapshotDetailsList []interface{}
+	// Use the project ID from the context
+	projectID := ctx.ProjectID
+
+	snapshotList, err := provider.Cinder.GetSnapshots(projectID)
+	if err != nil {
+		return snapshotDetailsList, err
+	}
+
+	for _, snapshot := range snapshotList {
+		snapshotDetailsList = append(snapshotDetailsList, snapshot)
+
+	}
+
+	return snapshotDetailsList, nil
 }
 
 func PrintAsJSON(v interface{}) {
@@ -92,47 +166,4 @@ func PrintAsJSON(v interface{}) {
 func (provider *OpenStackPlugin) initContext() (*APIContext, error) {
 	ctx := &APIContext{}
 	return ctx, nil
-}
-
-func (provider *OpenStackPlugin) FetchKeystoneData(ctx *APIContext) (*ServiceData, error) {
-	projectID, err := provider.Keystone.Authenticate()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	projectModel, err := provider.Keystone.GetProjectDetailsByID(projectID)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	ctx.ProjectID = projectID
-
-	return &ServiceData{
-		ServiceSource: "identity",
-		Data:          []interface{}{projectModel},
-	}, nil
-}
-
-func (provider *OpenStackPlugin) FetchNovaData(ctx *APIContext) (*ServiceData, error) {
-	// Use the project ID from the context
-	var resources ServiceData
-
-	resources.ServiceSource = "compute"
-
-	projectID := ctx.ProjectID
-	serverList, err := provider.Nova.GetServerListByProjectID(projectID)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	for _, server := range serverList.Servers {
-		serverDetails, err := provider.Nova.GetServerByID(server.ID)
-		// TODO append to NovaData
-		resources.Data = append(resources.Data, serverDetails)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return &resources, nil
 }

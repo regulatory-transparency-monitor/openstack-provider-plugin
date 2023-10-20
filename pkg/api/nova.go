@@ -20,20 +20,20 @@ func (n *NovaService) GetServerListByProjectID(projectID string) (models.ServerL
 	// Construct the GET request.
 	req, err := n.Client.NewRequest("GET", endpoint, nil, nil)
 	if err != nil {
-		return models.ServerList{}, fmt.Errorf("failed to create request: %w", err)
+		return models.ServerList{}, fmt.Errorf("failed to create GetServerListByProjectID request: %w", err)
 	}
 
 	// Execute the request.
 	res, err := n.Client.Do(req)
 	if err != nil {
-		return models.ServerList{}, fmt.Errorf("request failed: %w", err)
+		return models.ServerList{}, fmt.Errorf("request GetServerListByProjectID failed: %w", err)
 	}
 	defer res.Body.Close()
 
 	// Decode the response.
 	var response models.ServerList
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		return models.ServerList{}, fmt.Errorf("failed to decode response: %w", err)
+		return models.ServerList{}, fmt.Errorf("failed to decode GetServerListByProjectID response: %w", err)
 	}
 
 	return response, err
@@ -48,67 +48,52 @@ func (n *NovaService) GetServerByID(serverID string) (models.ServerDetails, erro
 	// Construct the GET request.
 	req, err := n.Client.NewRequest("GET", endpoint, nil, nil)
 	if err != nil {
-		return models.ServerDetails{}, fmt.Errorf("failed to create request: %w", err)
+		return models.ServerDetails{}, fmt.Errorf("failed to construct GetServerByID request: %w", err)
 	}
 
 	// Execute the request.
 	res, err := n.Client.Do(req)
 	if err != nil {
-		return models.ServerDetails{}, fmt.Errorf("failed to create request: %w", err)
+		return models.ServerDetails{}, fmt.Errorf("failed to execute GetServerByID request: %w", err)
 	}
 	defer res.Body.Close()
 
 	// Decode the response.
 	var response models.ServerDetails
+
 	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
-		return models.ServerDetails{}, fmt.Errorf("failed to create request: %w", err)
+		return models.ServerDetails{}, fmt.Errorf("failed to decode GetServerByID response: %w", err)
 	}
 
 	return response, err
 
 }
 
-/*
-// Doenst return anthing so far
-func getServerIP(response models.ServerList, appLogger *logger.APIlogger, headers map[string]string) {
+// Get volumes attached to server
+func (n *NovaService) GetAttachedVolumes(serverID string) (models.ServerVolumeAttachments, error) {
+
 	// Iterate over each server and make the API call
-	for _, server := range response.Servers {
+	endpoint := fmt.Sprintf("%sservers/%s/os-volume_attachments", n.BaseURL, serverID)
 
-		apiEndpoint := fmt.Sprintf("https://pub1.infomaniak.cloud/compute/v2.1/servers/%s/ips", server.ID)
-
-		var response models.Addresses
-		// Make the API call to the endpoint using the server ID
-
-		response, _, err := client.MakeHTTPRequest(apiEndpoint, "GET", headers, nil, nil, response)
-
-		// Handle the response
-		appLogger.Infof("Response: %+s", response)
-		if err != nil {
-			appLogger.Fatalf("Error while coverting: %s", err)
-
-		}
-
+	// Construct the GET request.
+	req, err := n.Client.NewRequest("GET", endpoint, nil, nil)
+	if err != nil {
+		return models.ServerVolumeAttachments{}, fmt.Errorf("failed to construct GetAttachedVolumes request: %w", err)
 	}
-}
 
-func getMetadata(response models.ServerList, appLogger *logger.APIlogger, headers map[string]string) {
-	// Iterate over each server and make the API call
-	for _, server := range response.Servers {
-
-		apiEndpoint := fmt.Sprintf("https://pub1.infomaniak.cloud/compute/v2.1/servers/%s/metadata", server.ID)
-
-		var response models.Metadata
-		// Make the API call to the endpoint using the server ID
-
-		response, _, err := client.MakeHTTPRequest(apiEndpoint, "GET", headers, nil, nil, response)
-
-		// Handle the response
-		appLogger.Infof("Response: %+s", response)
-		if err != nil {
-			appLogger.Fatalf("Error while coverting: %s", err)
-
-		}
-
+	// Execute the request.
+	res, err := n.Client.Do(req)
+	if err != nil {
+		return models.ServerVolumeAttachments{}, fmt.Errorf("failed to execute GetAttachedVolumes request: %w", err)
 	}
+	defer res.Body.Close()
+
+	// Decode the response.
+	var response models.ServerVolumeAttachments
+
+	if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+		return response, fmt.Errorf("failed to decode GetAttachedVolumes response: %w", err)
+	}
+
+	return response, err
 }
-*/
