@@ -1,9 +1,7 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
-	"log"
 
 	shared "github.com/regulatory-transparency-monitor/commons/models"
 	"github.com/regulatory-transparency-monitor/openstack-provider-plugin/pkg/api"
@@ -17,26 +15,46 @@ type OpenStackPlugin struct {
 	Keystone interfaces.KeystoneAPI
 	Nova     interfaces.NovaAPI
 	Cinder   interfaces.CinderAPI
+	Config   map[string]interface{}
 }
 type APIContext struct {
 	ProjectID string
 }
 
-// TODO pass base url and credentials as parameters from the graph builder service
-func (provider *OpenStackPlugin) Initialize() error {
-	httpClient := httpwrapper.NewClient("https://api.pub1.infomaniak.cloud/")
+func (provider *OpenStackPlugin) Initialize(config map[string]interface{}) error {
+	provider.Config = config
+	apiAccess, ok := config["api_access"].(map[string]interface{})
+	if !ok {
+		return fmt.Errorf("openStack api_access configuration is missing or invalid")
+	}
+	baseURL, ok := apiAccess["base_url"].(string)
+	if !ok || baseURL == "" {
+		return fmt.Errorf("openStack base_url configuration is missing or invalid")
+	}
+	identityAPI, ok := apiAccess["identity_api"].(string)
+	if !ok || identityAPI == "" {
+		return fmt.Errorf("OpenStack identity_api configuration is missing or invalid")
+	}
+	compute_api, ok := apiAccess["compute_api"].(string)
+	if !ok || identityAPI == "" {
+		return fmt.Errorf("OpenStack compute_api configuration is missing or invalid")
+	}
+	storage_api, ok := apiAccess["storage_api"].(string)
+	if !ok || identityAPI == "" {
+		return fmt.Errorf("OpenStack storage_api configuration is missing or invalid")
+	}
+	httpClient := httpwrapper.NewClient(baseURL)
 
 	provider.Keystone = &api.KeystoneService{
-		BaseURL: "identity/v3/",
+		BaseURL: identityAPI,
 		Client:  httpClient,
-		// provide url and credentials here
 	}
 	provider.Nova = &api.NovaService{
-		BaseURL: "compute/v2.1/",
+		BaseURL: compute_api,
 		Client:  httpClient,
 	}
 	provider.Cinder = &api.CinderService{
-		BaseURL: "volume/v3/",
+		BaseURL: storage_api,
 		Client:  httpClient,
 	}
 
@@ -81,7 +99,9 @@ func (provider *OpenStackPlugin) FetchData() (shared.RawData, error) {
 	return data, nil
 }
 func (provider *OpenStackPlugin) FetchKeystoneData(ctx *APIContext) (*m.ProjectDetails, error) {
-	projectID, err := provider.Keystone.Authenticate()
+	credentials := provider.Config["credentials"].(map[string]interface{})
+
+	projectID, err := provider.Keystone.Authenticate(credentials)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -155,14 +175,6 @@ func (provider *OpenStackPlugin) FetchCinderSnapshots(ctx *APIContext) ([]interf
 	return snapshotDetailsList, nil
 }
 
-func PrintAsJSON(v interface{}) {
-	data, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		log.Fatalf("Error marshaling data: %v", err)
-	}
-
-	fmt.Println(string(data))
-}
 func (provider *OpenStackPlugin) initContext() (*APIContext, error) {
 	ctx := &APIContext{}
 	return ctx, nil

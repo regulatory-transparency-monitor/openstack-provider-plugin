@@ -34,23 +34,15 @@ type Response struct {
 	Token   Token    `json:"token"`
 	Servers []Server `json:"servers"`
 }
+
 // Token struct for the authentication request
 type AuthToken struct {
 	Token string
 }
 
-
-/* type Token struct {
-	Methods   []string `json:"methods"`
-	User      User     `json:"user"`
-	AuditIDs  []string `json:"audit_ids"`
-	ExpiresAt string   `json:"expires_at"`
-	IssuedAt  string   `json:"issued_at"`
-} */
-
 type Token struct {
-	HeaderToken string 
-	ProjectID string
+	HeaderToken string
+	ProjectID   string
 }
 type User struct {
 	Domain            Domain `json:"domain"`
@@ -72,40 +64,7 @@ type TokenResponse struct {
 	} `json:"token"`
 }
 
-// DoAuth performs authentication
-func AuthPayload() AuthRequest {
-	authReq := AuthRequest{
-		Auth: AuthIdentity{
-			Identity: IdentityData{
-				Methods: []string{"password"},
-				Password: PasswordDetails{
-					User: UserDetails{
-						Name:     "PCU-JMY29J4",
-						Domain:   Domain{Name: "Default"},
-						Password: "rIhhym-xescud-2kyxwe",
-					},
-				},
-			},
-		},
-	}
-	return authReq
-}
 
-// performs authentication
-func CredentialPayload() AuthRequest {
-	authReq := AuthRequest{
-		Auth: AuthIdentity{
-			Identity: IdentityData{
-				Methods: []string{"application_credential"},
-				ApplicationCredential: ApplicationCredential{
-					ID:     "d4ac29bc2a0449419754693baa1c9e3f",
-					Secret: "J9zApG1iGomwo2463ImstALe3QA8A-Rwl_NrpmA1LsD-ua9Wgm95hOKQ_pp7EfJ3dYDFMQ-LlC5l4hIAMtEkLg",
-				},
-			},
-		},
-	}
-	return authReq
-}
 
 type ProjectDetails struct {
 	Project struct {

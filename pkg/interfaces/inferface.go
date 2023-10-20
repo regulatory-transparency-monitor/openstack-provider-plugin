@@ -5,7 +5,7 @@ import (
 )
 
 type KeystoneAPI interface {
-	Authenticate() (string, error)
+	Authenticate(credential map[string]interface{}) (string, error)
 	GetProjectDetailsByID(projectID string) (models.ProjectDetails, error)
 }
 
